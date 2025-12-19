@@ -1,4 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+
 import Layout from './layout/layout.jsx';
 import HomePage from './page/HomePage.jsx';
 import LoginPage from './page/LoginPage.jsx';
@@ -9,6 +11,9 @@ import ShopManage from './page/ShopManage.jsx';
 function App() {
   return (
     <div>
+      {/*  Toast toàn app */}
+      <Toaster position="top-right" reverseOrder={false} />
+
       <Routes>
         <Route
           path="/"
@@ -29,7 +34,7 @@ function App() {
           }
         />
         <Route
-          path="/shop"
+          path="/user-shop"
           element={
             <Layout>
               <ShopManage />
