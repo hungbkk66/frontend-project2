@@ -108,8 +108,14 @@ export const getProductDetail = async (id) => {
   return res.data.product;
 };
 
-export const rateProductApi = ({ productId, star }) => {
-  return axiosInstance.post(`/products/rate/${productId}`, { star });
+export const createReview = async (data) => {
+  // data = { productId, orderId, rating }
+  const res = await axiosInstance.post('/products/rate', {
+    productId: data.productId,
+    orderId: data.orderId,
+    star: data.rating, // Truyền số sao (1-5)
+  });
+  return res.data;
 };
 
 // 20 sản phẩm giá CAO nhất

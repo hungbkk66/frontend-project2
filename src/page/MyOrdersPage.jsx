@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Package,
@@ -8,17 +8,45 @@ import {
   XCircle,
   Store,
   CalendarDays,
+  Loader2,
+  Star, // Icon ngôi sao
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import useMyOrders from '@/hooks/orderHook/useMyOrders';
+import useUpdateOrderStatus from '@/hooks/orderHook/useUpdateOrderStatus';
+import RateProductModal from '@/components/RateProductModal';
 
 const MyOrdersPage = () => {
   const { data: orders, isLoading, isError } = useMyOrders();
+  const { mutate: updateStatus, isPending: isUpdating } =
+    useUpdateOrderStatus();
 
+  // --- STATE QUẢN LÝ MODAL ĐÁNH GIÁ ---
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+
+  // Hàm mở modal đánh giá cho 1 sản phẩm cụ thể
+  const handleOpenReview = (product, orderId) => {
+    setSelectedProduct(product);
+    setSelectedOrderId(orderId);
+    setIsReviewOpen(true);
+  };
+
+  // Hàm xác nhận đã nhận hàng
+  const handleReceiveOrder = (orderId) => {
+    if (
+      window.confirm('Bạn xác nhận đã nhận được hàng và hài lòng với sản phẩm?')
+    ) {
+      updateStatus({ orderId, status: 'received' });
+    }
+  };
+
+  // --- HELPER FORMAT ---
   const formatCurrency = (amount) =>
-    new Intl.NumberFormat('en-US', {
+    new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'VND',
     }).format(amount);
 
   const formatDate = (dateString) => {
@@ -31,54 +59,55 @@ const MyOrdersPage = () => {
     });
   };
 
-  // Helper hiển thị trạng thái với màu sắc
   const renderStatus = (status) => {
-    const statusConfig = {
-      pending: {
-        color: 'text-yellow-600 bg-yellow-50 border-yellow-100',
-        icon: <Clock className="w-4 h-4" />,
-        text: 'Pending',
-      },
-      confirmed: {
-        color: 'text-blue-600 bg-blue-50 border-blue-100',
-        icon: <CheckCircle className="w-4 h-4" />,
-        text: 'Confirmed',
-      },
-      shipping: {
-        color: 'text-purple-600 bg-purple-50 border-purple-100',
-        icon: <Truck className="w-4 h-4" />,
-        text: 'Shipping',
-      },
-      delivered: {
-        color: 'text-green-600 bg-green-50 border-green-100',
-        icon: <Package className="w-4 h-4" />,
-        text: 'Delivered',
-      },
-      canceled: {
-        color: 'text-red-600 bg-red-50 border-red-100',
-        icon: <XCircle className="w-4 h-4" />,
-        text: 'Canceled',
-      },
-    };
-
-    const config = statusConfig[status] || statusConfig.pending;
-
-    return (
-      <span
-        className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${config.color}`}
-      >
-        {config.icon} {config.text}
-      </span>
-    );
+    switch (status) {
+      case 'pending':
+        return (
+          <span className="flex items-center gap-1 text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full text-sm border border-yellow-100">
+            <Clock className="w-4 h-4" /> Pending
+          </span>
+        );
+      case 'confirmed':
+        return (
+          <span className="flex items-center gap-1 text-blue-600 bg-blue-50 px-3 py-1 rounded-full text-sm border border-blue-100">
+            <CheckCircle className="w-4 h-4" /> Confirmed
+          </span>
+        );
+      case 'shipping':
+        return (
+          <span className="flex items-center gap-1 text-purple-600 bg-purple-50 px-3 py-1 rounded-full text-sm border border-purple-100">
+            <Truck className="w-4 h-4" /> Shipping
+          </span>
+        );
+      case 'delivered':
+        return (
+          <span className="flex items-center gap-1 text-orange-600 bg-orange-50 px-3 py-1 rounded-full text-sm border border-orange-100">
+            <Package className="w-4 h-4" /> Delivered
+          </span>
+        );
+      case 'received':
+        return (
+          <span className="flex items-center gap-1 text-green-700 bg-green-100 px-3 py-1 rounded-full text-sm border border-green-200 font-bold">
+            <CheckCircle className="w-4 h-4" /> Received
+          </span>
+        );
+      case 'canceled':
+        return (
+          <span className="flex items-center gap-1 text-red-600 bg-red-50 px-3 py-1 rounded-full text-sm border border-red-100">
+            <XCircle className="w-4 h-4" /> Canceled
+          </span>
+        );
+      default:
+        return status;
+    }
   };
 
   if (isLoading)
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <Loader2 className="animate-spin text-primary w-8 h-8" />
       </div>
     );
-
   if (isError)
     return (
       <div className="flex h-screen items-center justify-center text-red-500">
@@ -109,14 +138,12 @@ const MyOrdersPage = () => {
               key={order._id}
               className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
             >
-              {/* Header: Shop & Status */}
+              {/* HEADER: Shop Info & Status */}
               <div className="p-4 border-b bg-gray-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2 text-gray-800">
                     <Store className="w-4 h-4 text-gray-500" />
-                    <span className="font-bold">
-                      {order.shop?.name || 'Shop Name'}
-                    </span>
+                    <span className="font-bold">{order.shop?.name}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <CalendarDays className="w-3 h-3" />
@@ -128,7 +155,7 @@ const MyOrdersPage = () => {
                 <div>{renderStatus(order.status)}</div>
               </div>
 
-              {/* Body: List Items */}
+              {/* BODY: List Items */}
               <div className="divide-y divide-gray-100">
                 {order.items.map((item, index) => (
                   <div
@@ -136,28 +163,40 @@ const MyOrdersPage = () => {
                     className="p-4 flex gap-4 hover:bg-gray-50/30 transition"
                   >
                     <img
-                      src={
-                        item.product?.imageUrl ||
-                        'https://via.placeholder.com/100'
-                      }
+                      src={item.product?.imageUrl}
                       alt={item.product?.name}
                       className="w-20 h-20 object-cover rounded-lg border border-gray-100"
                     />
                     <div className="flex-1 flex flex-col justify-between">
-                      <div>
+                      <div className="flex justify-between items-start gap-2">
                         <Link
                           to={`/product/${item.product?._id}`}
-                          className="font-medium text-gray-900 line-clamp-2 hover:text-primary transition-colors"
+                          className="font-medium text-gray-900 line-clamp-2 hover:text-primary"
                         >
                           {item.product?.name}
                         </Link>
+
+                        {/* --- NÚT ĐÁNH GIÁ (Nằm cạnh từng sản phẩm) --- */}
+                        {order.status === 'received' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="shrink-0 text-xs h-8 border-orange-200 text-orange-600 hover:bg-orange-50"
+                            onClick={() =>
+                              handleOpenReview(item.product, order._id)
+                            }
+                          >
+                            <Star className="w-3 h-3 mr-1" /> Đánh giá
+                          </Button>
+                        )}
                       </div>
+
                       <div className="flex justify-between items-end mt-2">
                         <span className="text-sm text-gray-500">
                           x{item.quantity}
                         </span>
                         <span className="font-semibold text-gray-900">
-                          {item.price}đ
+                          {formatCurrency(item.price)}
                         </span>
                       </div>
                     </div>
@@ -165,36 +204,39 @@ const MyOrdersPage = () => {
                 ))}
               </div>
 
-              {/* Footer: Total & Actions */}
+              {/* FOOTER: Total & Confirm Received */}
               <div className="p-4 bg-gray-50 border-t flex flex-col sm:flex-row justify-end items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Order Total:</span>
+                  <span className="text-sm text-gray-500">Thành tiền:</span>
                   <span className="text-xl font-bold text-primary">
-                    {order.totalPrice}đ
+                    {formatCurrency(order.totalPrice)}
                   </span>
                 </div>
 
-                {/* Nút hành động */}
-                <div className="flex gap-2 w-full sm:w-auto">
-                  {/* Bạn có thể thêm trang Order Detail sau */}
-                  {/* <Link to={`/order/${order._id}`} className="w-full sm:w-auto">
-                        <Button variant="outline" size="sm" className="w-full">Details</Button>
-                    </Link> */}
-
-                  {order.status === 'delivered' && (
-                    <Button
-                      size="sm"
-                      className="bg-orange-500 hover:bg-orange-600 w-full sm:w-auto"
-                    >
-                      Review
-                    </Button>
-                  )}
-                </div>
+                {/* Chỉ hiện nút xác nhận khi Shop đã giao hàng (delivered) */}
+                {order.status === 'delivered' && (
+                  <Button
+                    onClick={() => handleReceiveOrder(order._id)}
+                    disabled={isUpdating}
+                    className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Đã nhận được hàng
+                  </Button>
+                )}
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* --- MODAL ĐÁNH GIÁ --- */}
+      <RateProductModal
+        isOpen={isReviewOpen}
+        onClose={() => setIsReviewOpen(false)}
+        product={selectedProduct}
+        orderId={selectedOrderId}
+      />
     </div>
   );
 };
