@@ -18,8 +18,8 @@ const Footer = () => {
               <h3 className="text-lg font-bold text-white">StyleSphere</h3>
             </div>
             <p className="text-sm mb-4">
-              Your destination for modern, high-quality fashion and lifestyle
-              products. Discover your style with us.
+              Điểm đến của bạn cho sản phẩm và phong cách sống hiện đại, chất
+              lượng cao. Khám phá phong cách của bạn cùng chúng tôi.
             </p>
             <div className="flex space-x-4">
               <a className="hover:text-primary transition-colors" href="#">
@@ -77,31 +77,10 @@ const Footer = () => {
               </li>
               <li>
                 <a className="hover:text-primary transition-colors" href="#">
-                  Contact Us
+                  Contact Us: hung9aytt@gmail.com
                 </a>
               </li>
             </ul>
-          </div>
-
-          {/* Column 4: Newsletter */}
-          <div>
-            <h4 className="font-semibold text-white mb-4">Newsletter</h4>
-            <p className="text-sm mb-2">
-              Subscribe for updates and special offers.
-            </p>
-            <form className="flex">
-              <Input
-                className="w-full rounded-l-lg border-0 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary h-10 px-3 py-2"
-                placeholder="Your email"
-                type="email"
-              />
-              <Button
-                className="px-4 py-2 bg-primary text-white font-semibold rounded-r-lg rounded-l-none h-10"
-                type="submit"
-              >
-                Go
-              </Button>
-            </form>
           </div>
         </div>
 

@@ -35,27 +35,9 @@ const Header = () => {
           <nav className="hidden md:flex items-center gap-9">
             <Link
               className="text-sm font-medium hover:text-primary transition-colors"
-              to="/shop"
-            >
-              Shop
-            </Link>
-            <Link
-              className="text-sm font-medium hover:text-primary transition-colors"
-              to="/categories"
-            >
-              Categories
-            </Link>
-            <Link
-              className="text-sm font-medium hover:text-primary transition-colors"
               to="/about"
             >
-              About
-            </Link>
-            <Link
-              className="text-sm font-medium hover:text-primary transition-colors"
-              to="/contact"
-            >
-              Contact
+              About us
             </Link>
           </nav>
         </div>

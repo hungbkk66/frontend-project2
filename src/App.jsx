@@ -12,6 +12,7 @@ import DetailPage from './page/DetailPage.jsx';
 import MyCartPage from './page/MyCartPage.jsx';
 import MyOrdersPage from './page/MyOrdersPage.jsx';
 import ManageOrders from './page/ManageOrders.jsx';
+import AboutPage from './page/AboutPage';
 
 function App() {
   return (
@@ -83,6 +84,14 @@ function App() {
           element={
             <Layout>
               <ManageOrders />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <Layout>
+              <AboutPage />
             </Layout>
           }
         />
