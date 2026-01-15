@@ -102,3 +102,110 @@ export const deleteProduct = async (productId) => {
   const res = await axiosInstance.delete(`/products/${productId}`);
   return res.data; // { message: 'Sản phẩm đã được xóa thành công' }
 };
+
+export const getProductDetail = async (id) => {
+  const res = await axiosInstance.get(`/products/${id}`);
+  return res.data.product;
+};
+
+export const rateProductApi = ({ productId, star }) => {
+  return axiosInstance.post(`/products/rate/${productId}`, { star });
+};
+
+// 20 sản phẩm giá CAO nhất
+export const getTopExpensiveProducts = async () => {
+  const res = await axiosInstance.get('/products/sort/top-expensive');
+  return res.data.products;
+};
+
+// 20 sản phẩm giá THẤP nhất
+export const getTopCheapestProducts = async () => {
+  const res = await axiosInstance.get('/products/sort/top-cheapest');
+  return res.data.products;
+};
+
+export const getTopRatedProducts = async () => {
+  const res = await axiosInstance.get('/products/sort/top-rated');
+  return res.data.products;
+};
+
+// search api
+
+export const searchProducts = async ({ keyword = '', category = '' }) => {
+  const res = await axiosInstance.get('/products/search', {
+    params: {
+      keyword,
+      category,
+    },
+  });
+
+  return res.data.products;
+};
+
+export const getProductsByCategoryName = async (categoryName) => {
+  const res = await axiosInstance.get(`/products/category/${categoryName}`);
+  return res.data;
+};
+
+// cart api
+
+export const addToCartApi = async ({ productId, quantity = 1 }) => {
+  const res = await axiosInstance.post('/cart/add', {
+    productId,
+    quantity,
+  });
+
+  return res.data;
+};
+
+export const getMyCart = async () => {
+  const res = await axiosInstance.get('/cart/me');
+  return res.data;
+};
+
+export const getCartGroupedByShop = async () => {
+  const res = await axiosInstance.get('/cart/group-by-shop');
+  return res.data;
+};
+
+export const removeCartItem = async (cartItemId) => {
+  const res = await axiosInstance.delete(`/cart/item/${cartItemId}`);
+  return res.data;
+};
+
+// order api
+
+export const createOrdersFromCart = async (itemIds) => {
+  const res = await axiosInstance.post('/orders/from-cart', {
+    itemIds,
+  });
+  return res.data;
+};
+
+export const getMyOrders = async () => {
+  const res = await axiosInstance.get('/orders/my-orders');
+  return res.data.orders;
+};
+
+export const getShopOrders = async () => {
+  const res = await axiosInstance.get('/orders/shop-orders');
+  return res.data.orders;
+};
+
+export const updateOrderStatus = async ({ orderId, status }) => {
+  // Gọi API: PUT /api/orders/:id/status
+  const res = await axiosInstance.put(`/orders/${orderId}/status`, { status });
+  return res.data;
+};
+
+// category api
+
+export const getAllCategoryNames = async () => {
+  const res = await axiosInstance.get('/categories/names');
+  return res.data.data;
+};
+
+export const getCategoryIdByName = async (categoryName) => {
+  const res = await axiosInstance.get(`/categories/id/${categoryName}`);
+  return res.data.data;
+};

@@ -14,6 +14,7 @@ const UserProfilePage = () => {
   const { authUser, isLoading } = useAuthUser();
   // update user
   const updateProfileMutation = useUpdateProfile();
+
   // 🔹 React Hook Form
   const {
     register,
@@ -24,14 +25,15 @@ const UserProfilePage = () => {
     resolver: zodResolver(userProfileSchema),
   });
 
-  // 🔹 Đổ data từ backend vào form
+  // 🔹 Đổ data từ backend vào form (Thêm phone vào đây)
   useEffect(() => {
     if (authUser) {
       reset({
         name: authUser.name || '',
         email: authUser.email || '',
+        phone: authUser.phone || '', // ✅ Added phone
         location: authUser.location || '',
-        language: authUser.language || '', // ✅ lấy đúng từ backend
+        language: authUser.language || '',
         description: authUser.description || '',
       });
     }
@@ -46,15 +48,17 @@ const UserProfilePage = () => {
       data,
     });
 
+    // Reset form với data mới sau khi update thành công để tính lại isDirty
     reset(data);
   };
 
-  // 🔹 Cancel form
+  // 🔹 Cancel form (Thêm phone vào đây)
   const handleCancel = () => {
     if (authUser) {
       reset({
         name: authUser.name || '',
         email: authUser.email || '',
+        phone: authUser.phone || '', // ✅ Added phone reset
         location: authUser.location || '',
         language: authUser.language || '',
         description: authUser.description || '',
@@ -78,7 +82,6 @@ const UserProfilePage = () => {
           {/* ===== Avatar + Name ===== */}
           <div className="flex flex-col items-center gap-4">
             <div className="relative group">
-              {/* ✅ Avatar lấy từ profilePic */}
               <div
                 className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-32"
                 style={{
@@ -131,18 +134,35 @@ const UserProfilePage = () => {
                 </label>
               </div>
 
+              {/* ✅ Phone Input (Mới thêm vào) */}
+              <div className="sm:col-span-2">
+                <label className="flex flex-col">
+                  <p className="text-sm font-medium pb-2">Phone Number</p>
+                  <Input
+                    {...register('phone')}
+                    type="tel"
+                    placeholder="+84..."
+                  />
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.phone.message}
+                    </p>
+                  )}
+                </label>
+              </div>
+
               {/* Location */}
               <label className="flex flex-col">
                 <p className="text-sm font-medium pb-2">Location</p>
                 <Input {...register('location')} />
               </label>
 
-              {/* ✅ Language hiển thị đúng từ backend */}
+              {/* Language */}
               <label className="flex flex-col">
                 <p className="text-sm font-medium pb-2">Language</p>
                 <select
                   {...register('language')}
-                  className="h-12 rounded-lg border p-3 dark:bg-slate-800"
+                  className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="english">English</option>
                   <option value="vietnamese">Vietnamese</option>
@@ -158,7 +178,7 @@ const UserProfilePage = () => {
                   <textarea
                     {...register('description')}
                     rows="4"
-                    className="rounded-lg border p-3 dark:bg-slate-800"
+                    className="rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   {errors.description && (
                     <p className="text-red-500 text-sm mt-1">

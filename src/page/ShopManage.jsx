@@ -14,6 +14,9 @@ import useMyProducts from '@/hooks/productHook/useMyProducts';
 import useDeleteProduct from '@/hooks/productHook/useDeleteProduct';
 import useUpdateProduct from '@/hooks/productHook/useUpdateProduct';
 
+// ===== CATEGORY HOOK (MỚI) =====
+import useCategoryNames from '@/hooks/categoryHook/useCategoryNames'; // Giả sử bạn lưu hook ở đây
+
 const ShopManage = () => {
   /* ================= SHOP ================= */
   const { data: shop, isLoading } = useMyShop();
@@ -76,6 +79,10 @@ const ShopManage = () => {
   };
 
   /* ================= PRODUCT ================= */
+  // 1. Lấy danh sách Category để hiển thị Dropdown
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useCategoryNames();
+
   const createProductMutation = useCreateProduct();
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
@@ -96,6 +103,11 @@ const ShopManage = () => {
 
   const handleCreateProduct = () => {
     if (!shop) return;
+    // Validate category
+    if (!productForm.category) {
+      toast.error('Please select a category');
+      return;
+    }
 
     const formData = new FormData();
     formData.append('name', productForm.name);
@@ -169,10 +181,13 @@ const ShopManage = () => {
           {hasShop ? 'Shop Information' : 'Create Shop'}
         </h2>
 
-        <img
-          src={shopImagePreview}
-          className="w-32 h-32 object-cover rounded"
-        />
+        {shopImagePreview && (
+          <img
+            src={shopImagePreview}
+            className="w-32 h-32 object-cover rounded border"
+            alt="Shop Logo"
+          />
+        )}
 
         <Input
           placeholder="Shop name"
@@ -203,21 +218,27 @@ const ShopManage = () => {
         />
 
         <textarea
-          className="w-full border rounded p-3"
+          className="w-full border rounded p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          placeholder="Shop description..."
           value={shopForm.description}
           onChange={(e) =>
             setShopForm({ ...shopForm, description: e.target.value })
           }
         />
 
-        <Input
-          type="file"
-          onChange={(e) => {
-            const file = e.target.files[0];
-            setShopForm({ ...shopForm, image: file });
-            setShopImagePreview(URL.createObjectURL(file));
-          }}
-        />
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Shop Logo</label>
+          <Input
+            type="file"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (file) {
+                setShopForm({ ...shopForm, image: file });
+                setShopImagePreview(URL.createObjectURL(file));
+              }
+            }}
+          />
+        </div>
 
         <Button onClick={handleShopSubmit}>
           {hasShop ? 'Update Shop' : 'Create Shop'}
@@ -239,34 +260,49 @@ const ShopManage = () => {
             }
           />
 
-          <Input
-            type="number"
-            placeholder="Price"
-            value={productForm.price}
-            onChange={(e) =>
-              setProductForm({ ...productForm, price: e.target.value })
-            }
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              type="number"
+              placeholder="Price"
+              value={productForm.price}
+              onChange={(e) =>
+                setProductForm({ ...productForm, price: e.target.value })
+              }
+            />
 
-          <Input
-            type="number"
-            placeholder="Stock"
-            value={productForm.stock}
-            onChange={(e) =>
-              setProductForm({ ...productForm, stock: e.target.value })
-            }
-          />
+            <Input
+              type="number"
+              placeholder="Stock"
+              value={productForm.stock}
+              onChange={(e) =>
+                setProductForm({ ...productForm, stock: e.target.value })
+              }
+            />
+          </div>
 
-          <Input
-            placeholder="Category ID"
-            value={productForm.category}
-            onChange={(e) =>
-              setProductForm({ ...productForm, category: e.target.value })
-            }
-          />
+          {/* --- THAY THẾ INPUT BẰNG SELECT DROPDOWN --- */}
+          <div>
+            <select
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={productForm.category}
+              onChange={(e) =>
+                setProductForm({ ...productForm, category: e.target.value })
+              }
+              disabled={isCategoriesLoading}
+            >
+              <option value="">Select Category</option>
+              {categories &&
+                categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+            </select>
+          </div>
 
           <textarea
-            className="w-full border rounded p-3"
+            className="w-full border rounded p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            placeholder="Product description..."
             value={productForm.description}
             onChange={(e) =>
               setProductForm({
@@ -276,12 +312,15 @@ const ShopManage = () => {
             }
           />
 
-          <Input
-            type="file"
-            onChange={(e) =>
-              setProductForm({ ...productForm, image: e.target.files[0] })
-            }
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Product Image</label>
+            <Input
+              type="file"
+              onChange={(e) =>
+                setProductForm({ ...productForm, image: e.target.files[0] })
+              }
+            />
+          </div>
 
           <div className="flex gap-2">
             <Button
@@ -319,22 +358,27 @@ const ShopManage = () => {
         <div className="border rounded-xl p-6 space-y-4">
           <h2 className="text-2xl font-bold">My Products</h2>
 
-          {productLoading && <p>Loading...</p>}
+          {productLoading && <p>Loading products...</p>}
 
           {products.map((product) => (
             <div
               key={product._id}
-              className="flex justify-between items-center border p-4 rounded"
+              className="flex justify-between items-center border p-4 rounded hover:bg-gray-50 transition"
             >
               <div className="flex gap-4 items-center">
                 <img
                   src={product.imageUrl}
-                  className="w-16 h-16 object-cover rounded"
+                  className="w-16 h-16 object-cover rounded border"
+                  alt={product.name}
                 />
                 <div>
                   <p className="font-semibold">{product.name}</p>
                   <p className="text-sm text-gray-500">
-                    ${product.price} | Stock {product.stock}
+                    Price: {product.price}đ | Stock: {product.stock}
+                  </p>
+                  {/* Hiển thị tên Category nếu đã populate */}
+                  <p className="text-xs text-gray-400">
+                    Cat: {product.category?.name || 'N/A'}
                   </p>
                 </div>
               </div>
@@ -344,14 +388,22 @@ const ShopManage = () => {
                   className="!bg-black !text-white"
                   onClick={() => {
                     setEditingProduct(product);
+                    // LOGIC QUAN TRỌNG: Kiểm tra xem category là object hay string
+                    const categoryId = product.category?._id
+                      ? product.category._id
+                      : product.category;
+
                     setProductForm({
                       name: product.name,
                       price: product.price,
                       stock: product.stock,
-                      category: product.category,
+                      category: categoryId || '',
                       description: product.description || '',
                       image: null,
                     });
+
+                    // Cuộn lên form
+                    window.scrollTo({ top: 300, behavior: 'smooth' });
                   }}
                 >
                   Update

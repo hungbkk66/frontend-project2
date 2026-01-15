@@ -7,6 +7,11 @@ import LoginPage from './page/LoginPage.jsx';
 import RegisterPage from './page/SignupPage.jsx';
 import UserProfilePage from './page/UserProfilePage.jsx';
 import ShopManage from './page/ShopManage.jsx';
+import SearchPage from './page/SearchPage.jsx';
+import DetailPage from './page/DetailPage.jsx';
+import MyCartPage from './page/MyCartPage.jsx';
+import MyOrdersPage from './page/MyOrdersPage.jsx';
+import ManageOrders from './page/ManageOrders.jsx';
 
 function App() {
   return (
@@ -38,6 +43,46 @@ function App() {
           element={
             <Layout>
               <ShopManage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <Layout>
+              <SearchPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/products/:id"
+          element={
+            <Layout>
+              <DetailPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/my-cart"
+          element={
+            <Layout>
+              <MyCartPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/my-orders"
+          element={
+            <Layout>
+              <MyOrdersPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/manage-orders" // Đường dẫn tuỳ bạn chọn
+          element={
+            <Layout>
+              <ManageOrders />
             </Layout>
           }
         />
