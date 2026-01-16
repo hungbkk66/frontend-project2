@@ -36,13 +36,6 @@ const MyCartPage = () => {
   // 4. State lưu danh sách ID các món được chọn (MỚI)
   const [selectedItems, setSelectedItems] = useState([]);
 
-  // Hàm format tiền
-  const formatCurrency = (amount) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-
   // --- LOGIC CHECKBOX (MỚI) ---
 
   // A. Chọn/Bỏ chọn 1 món
@@ -278,9 +271,7 @@ const MyCartPage = () => {
                     <span className="text-gray-500 text-sm mr-2">
                       Shop Total:
                     </span>
-                    <span className="font-bold">
-                      {formatCurrency(group.shopTotal)}
-                    </span>
+                    <span className="font-bold">{group.shopTotal}đ</span>
                   </div>
                 </div>
               );

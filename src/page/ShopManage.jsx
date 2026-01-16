@@ -333,7 +333,6 @@ const ShopManage = () => {
 
             {editingProduct && (
               <Button
-                variant="outline"
                 onClick={() => {
                   setEditingProduct(null);
                   setProductForm({

@@ -192,11 +192,7 @@ const UserProfilePage = () => {
             {/* ===== Actions ===== */}
             <div className="flex justify-end gap-3 border-t pt-6 mt-6">
               {isDirty && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleCancel}
-                >
+                <Button type="button" onClick={handleCancel}>
                   <X className="size-4 mr-2" />
                   Cancel
                 </Button>

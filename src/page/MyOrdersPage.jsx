@@ -218,7 +218,6 @@ const MyOrdersPage = () => {
                   <Button
                     onClick={() => handleReceiveOrder(order._id)}
                     disabled={isUpdating}
-                    className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
                   >
                     <CheckCircle className="w-4 h-4 mr-2" />
                     Đã nhận được hàng
